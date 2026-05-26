@@ -1,39 +1,45 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import Board from "./components/Board";
 import Keyboard from "./components/Keyboard";
-import { English } from "./data/English";
+import LanguageContext from "./context/LanguageContext";
 import { Guess } from "./types/Guess";
-import { Letter } from "./types/Letter";
-import { LetterStatus } from "./types/Letter";
+import { Letter, LetterStatus } from "./types/Letter";
+import { English } from "./data/English";
 
 function App() {
   const language = English;
-  let status: Record<Letter, LetterStatus> = {
-    A: "correct",
-    B: "present",
-    C: "absent",
-    D: "correct",
-    E: "present",
-  };
 
   const wordLength = 5;
   const guessCount = 6;
 
-  const [guesses, setGuesses] = useState<Guess[]>([
-    [
-      { letter: "A", status: "correct" },
-      { letter: "B", status: "present" },
-      { letter: "C", status: "absent" },
-      { letter: "D", status: "correct" },
-      { letter: "E", status: "present" },
-    ],
-    [
-      { letter: "F", status: "unevaluated" },
-      { letter: "G", status: "unevaluated" },
-      { letter: "H", status: "unevaluated" },
-    ],
-  ]);
+  const [guesses, setGuesses] = useState<Guess[]>([[]]);
+
+  let status = useMemo(() => {
+    const status: Record<string, LetterStatus> = {};
+
+    for (const guess of guesses) {
+      for (const { letter, status: letterStatus } of guess) {
+        switch (letterStatus) {
+          case LetterStatus.Correct:
+            status[letter] = LetterStatus.Correct;
+            break;
+          case LetterStatus.Present:
+            if (status[letter] !== LetterStatus.Correct) {
+              status[letter] = LetterStatus.Present;
+            }
+            break;
+          case LetterStatus.Absent:
+            if (!status[letter]) {
+              status[letter] = LetterStatus.Absent;
+            }
+            break;
+        }
+      }
+    }
+
+    return status;
+  }, [guesses]);
 
   const handleLetter = useCallback((letter: Letter) => {
     setGuesses((guesses) => {
@@ -44,7 +50,7 @@ function App() {
       const currentGuess = guesses[guesses.length - 1];
       return [
         ...guesses.slice(0, -1),
-        [...currentGuess, { letter, status: "unevaluated" }],
+        [...currentGuess, { letter, status: LetterStatus.Unevaluated }],
       ];
     });
   }, []);
@@ -64,28 +70,50 @@ function App() {
     });
   }, []);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Enter") {
+        handleEnter();
+      } else if (event.key === "Backspace") {
+        handleBackspace();
+      } else {
+        const normalizedKey = language.normalization?.[event.key] || event.key;
+        if (language.letters.includes(normalizedKey)) {
+          handleLetter(normalizedKey);
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-(--bg-color)">
       <header className="flex-0 flex items-center justify-center px-4 py-2 font-bold mb-4 text-(--header-text-color) border-b border-(--header-border-color)">
-        <h1 className="text-3xl">CSED Wordle</h1>
+        <h1 className="text-3xl">Wordle</h1>
       </header>
-      <main className="flex-1 flex flex-col items-center justify-center">
-        <div className="w-fit mb-2.5">
-          <Board
-            wordLength={wordLength}
-            guessCount={guessCount}
-            guesses={guesses}
-          />
-        </div>
-        <div className="w-fit">
-          <Keyboard
-            layout={language.keyboardLayout}
-            status={status}
-            onLetter={handleLetter}
-            onEnter={handleEnter}
-            onBackspace={handleBackspace}
-          />
-        </div>
+      <main className="flex-1 flex flex-col items-center justify-center p-2">
+        <LanguageContext value={language}>
+          <div className="w-fit mb-2.5">
+            <Board
+              wordLength={wordLength}
+              guessCount={guessCount}
+              guesses={guesses}
+            />
+          </div>
+          <div className="w-fit">
+            <Keyboard
+              status={status}
+              onLetter={handleLetter}
+              onEnter={handleEnter}
+              onBackspace={handleBackspace}
+            />
+          </div>
+        </LanguageContext>
       </main>
     </div>
   );

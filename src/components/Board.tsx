@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import LanguageContext from "../context/LanguageContext";
 import { Guess } from "../types/Guess";
 import Tile from "./Tile";
 
@@ -10,12 +12,15 @@ function Board({
   guessCount: number;
   guesses: Guess[];
 }) {
+  const { direction } = useContext(LanguageContext);
+
   return (
     <div
       className="grid gap-1"
       style={{
         gridTemplateRows: `repeat(${guessCount}, minmax(0, 1fr))`,
         gridTemplateColumns: `repeat(${wordLength}, minmax(0, 1fr))`,
+        direction,
       }}
     >
       {Array.from({ length: guessCount }).map((_, i) => (

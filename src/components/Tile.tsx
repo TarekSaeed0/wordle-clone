@@ -9,19 +9,19 @@ function Tile({
 }) {
   const statusClasses: Map<LetterStatus | null, string> = new Map([
     [
-      "correct",
+      LetterStatus.Correct,
       "bg-(--correct-color) border-(--correct-color) text-(--key-evaluated-text-color)",
     ],
     [
-      "present",
+      LetterStatus.Present,
       "bg-(--present-color) border-(--present-color) text-(--key-evaluated-text-color)",
     ],
     [
-      "absent",
+      LetterStatus.Absent,
       "bg-(--absent-color) border-(--absent-color) text-(--key-evaluated-absent-text-color)",
     ],
     [
-      "unevaluated",
+      LetterStatus.Unevaluated,
       "border-(--tile-unevaluated-border-color) text-(--key-text-color)",
     ],
     [null, "border-(--tile-border-color) text-(--key-text-color)"],
