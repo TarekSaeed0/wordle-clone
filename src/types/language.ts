@@ -1,5 +1,6 @@
-import { KeyboardLayout } from "./KeyboardLayout";
-import { Letter } from "./Letter";
+import { KeyboardLayout } from "./keyboard";
+
+export type Letter = string;
 
 export const LanguageDirection = {
   LeftToRight: "ltr",
@@ -15,4 +16,5 @@ export interface Language {
   letters: Letter[];
   keyboardLayout: KeyboardLayout;
   normalization: Record<Letter, Letter>;
+  dictionary: string[];
 }

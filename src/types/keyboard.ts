@@ -1,4 +1,4 @@
-import { Letter } from "./Letter";
+import { Letter } from "./language";
 
 export const KeyboardLayoutKeyType = {
   Letter: "letter",
