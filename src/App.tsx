@@ -7,11 +7,12 @@ import languageFromJson from "./utils/languageFromJson";
 import english from "./data/english.json";
 import { LetterStatus, Guess } from "./types/game";
 import { Letter } from "./types/language";
+import evaluateGuess from "./utils/evaluateGuess";
 
 function App() {
   const language = useMemo(() => languageFromJson(english), []);
-  const [wordLength, setWordLength] = useState(5);
-  const [guessCount, setGuessCount] = useState(6);
+  const [wordLength] = useState(5);
+  const [guessCount] = useState(6);
   const [guesses, setGuesses] = useState<Guess[]>([[]]);
 
   const handleLetter = useCallback(
@@ -31,42 +32,59 @@ function App() {
     [guesses, wordLength],
   );
 
-  const wordSet = useMemo(
+  const dictionary = useMemo(
     () =>
       new Set(language.dictionary.filter((word) => word.length === wordLength)),
     [language, wordLength],
   );
-  const correctWord = useMemo(
-    () => [...wordSet][Math.floor(Math.random() * wordSet.size)],
-    [wordSet],
-  );
 
-  console.log(correctWord);
+  const target = useMemo(
+    () => [...dictionary][Math.floor(Math.random() * dictionary.size)],
+    [dictionary],
+  );
+  console.log(target);
+
+  const [invalidGuessKey, setInvalidGuessKey] = useState(0);
 
   const handleEnter = useCallback(() => {
-    console.log(guesses);
     const currentGuess = guesses[guesses.length - 1];
     if (currentGuess.length !== wordLength) {
+      setInvalidGuessKey((key) => key + 1);
       return;
     }
 
     const word = currentGuess.map(({ letter }) => letter).join("");
-    if (!wordSet.has(word)) {
+    if (!dictionary.has(word)) {
+      setInvalidGuessKey((key) => key + 1);
       return;
     }
 
-    for (let i = 0; i < wordLength; i++) {
-      if (currentGuess[i].letter === correctWord[i]) {
-        currentGuess[i].status = LetterStatus.Correct;
-      } else if (correctWord.includes(currentGuess[i].letter)) {
-        currentGuess[i].status = LetterStatus.Present;
-      } else {
-        currentGuess[i].status = LetterStatus.Absent;
-      }
-    }
+    const statuses = evaluateGuess(
+      currentGuess.map(({ letter }) => letter),
+      target.split(""),
+    );
 
-    setGuesses((guesses) => [...guesses, []]);
-  }, [guesses, language]);
+    setInvalidGuessKey(0);
+
+    if (guesses.length === guessCount) {
+      setGuesses((guesses) => [
+        ...guesses.slice(0, -1),
+        currentGuess.map(({ letter }, index) => ({
+          letter,
+          status: statuses[index],
+        })),
+      ]);
+    } else {
+      setGuesses((guesses) => [
+        ...guesses.slice(0, -1),
+        currentGuess.map(({ letter }, index) => ({
+          letter,
+          status: statuses[index],
+        })),
+        [],
+      ]);
+    }
+  }, [guesses, wordLength, dictionary, target]);
 
   const handleBackspace = useCallback(() => {
     setGuesses((guesses) => {
@@ -138,6 +156,7 @@ function App() {
               wordLength={wordLength}
               guessCount={guessCount}
               guesses={guesses}
+              invalidGuessKey={invalidGuessKey}
             />
           </div>
           <div className="w-fit">

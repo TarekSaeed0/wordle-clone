@@ -4,13 +4,7 @@ import { Guess } from "../types/game";
 import { LetterStatus } from "../types/game";
 import { Letter } from "../types/language";
 
-function Tile({
-  letter,
-  status,
-}: {
-  letter: Letter | null;
-  status: LetterStatus | null;
-}) {
+function Tile({ letter, status }: { letter?: Letter; status?: LetterStatus }) {
   const statusClasses: Map<LetterStatus | null, string> = new Map([
     [
       LetterStatus.Correct,
@@ -33,9 +27,29 @@ function Tile({
 
   return (
     <div
-      className={`min-w-13 aspect-square border-2 flex items-center justify-center text-[2rem] font-bold uppercase select-none ${statusClasses.get(status)}`}
+      className={`min-w-13 aspect-square border-2 flex items-center justify-center text-[2rem] font-bold uppercase select-none ${statusClasses.get(status ?? null)}`}
     >
       {letter}
+    </div>
+  );
+}
+
+function Row({
+  wordLength,
+  guess,
+  className = "",
+}: {
+  wordLength: number;
+  guess?: Guess;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`grid grid-cols-subgrid gap-1.5 col-span-full ${className}`}
+    >
+      {Array.from({ length: wordLength }).map((_, j) => (
+        <Tile key={j} letter={guess?.[j]?.letter} status={guess?.[j]?.status} />
+      ))}
     </div>
   );
 }
@@ -44,12 +58,16 @@ function Board({
   wordLength,
   guessCount,
   guesses,
+  invalidGuessKey = 0,
 }: {
   wordLength: number;
   guessCount: number;
   guesses: Guess[];
+  invalidGuessKey: number;
 }) {
   const { direction } = useContext(LanguageContext);
+
+  const currentGuessIndex = guesses.length - 1;
 
   return (
     <div
@@ -61,15 +79,16 @@ function Board({
       }}
     >
       {Array.from({ length: guessCount }).map((_, i) => (
-        <div key={i} className="grid grid-cols-subgrid gap-1.5 col-span-full">
-          {Array.from({ length: wordLength }).map((_, j) => (
-            <Tile
-              key={j}
-              letter={guesses[i]?.[j]?.letter ?? null}
-              status={guesses[i]?.[j]?.status ?? null}
-            />
-          ))}
-        </div>
+        <Row
+          key={i === currentGuessIndex ? `${i}-${invalidGuessKey}` : i}
+          wordLength={wordLength}
+          guess={guesses[i]}
+          className={`${
+            i === currentGuessIndex && invalidGuessKey !== 0
+              ? "animate-shake"
+              : ""
+          }`}
+        />
       ))}
     </div>
   );
