@@ -33,16 +33,21 @@ function App() {
   );
 
   const dictionary = useMemo(
-    () =>
-      new Set(language.dictionary.filter((word) => word.length === wordLength)),
+    () => language.dictionary[wordLength],
     [language, wordLength],
   );
 
-  const target = useMemo(
-    () => [...dictionary][Math.floor(Math.random() * dictionary.size)],
+  const validGuesses = useMemo(
+    () => new Set([...dictionary.guesses, ...dictionary.answers]),
     [dictionary],
   );
-  console.log(target);
+  const validAnswers = dictionary.answers;
+
+  const answer = useMemo(
+    () => validAnswers[Math.floor(Math.random() * validAnswers.length)],
+    [validAnswers],
+  );
+  console.log(answer);
 
   const [invalidGuessKey, setInvalidGuessKey] = useState(0);
 
@@ -54,37 +59,34 @@ function App() {
     }
 
     const word = currentGuess.map(({ letter }) => letter).join("");
-    if (!dictionary.has(word)) {
+    if (!validGuesses.has(word)) {
       setInvalidGuessKey((key) => key + 1);
       return;
     }
 
     const statuses = evaluateGuess(
       currentGuess.map(({ letter }) => letter),
-      target.split(""),
+      answer.split(""),
     );
 
     setInvalidGuessKey(0);
 
-    if (guesses.length === guessCount) {
-      setGuesses((guesses) => [
+    setGuesses((guesses) => {
+      const newGuesses = [
         ...guesses.slice(0, -1),
         currentGuess.map(({ letter }, index) => ({
           letter,
           status: statuses[index],
         })),
-      ]);
-    } else {
-      setGuesses((guesses) => [
-        ...guesses.slice(0, -1),
-        currentGuess.map(({ letter }, index) => ({
-          letter,
-          status: statuses[index],
-        })),
-        [],
-      ]);
-    }
-  }, [guesses, wordLength, dictionary, target]);
+      ];
+
+      if (guesses.length !== guessCount) {
+        newGuesses.push([]);
+      }
+
+      return newGuesses;
+    });
+  }, [guesses, wordLength, validGuesses, answer]);
 
   const handleBackspace = useCallback(() => {
     setGuesses((guesses) => {
