@@ -32,9 +32,10 @@ export function initializeGameState(options: GameOptions): GameState {
     language: options.language,
     board,
     currentRow: 0,
-    currentColumn: 0,
+    currentTile: 0,
     status: GameStatus.InProgress,
     answer,
+    invalidGuessCount: 0,
   };
 }
 
@@ -43,7 +44,7 @@ function addLetter(state: GameState, letter: Letter): GameState {
     return state;
   }
 
-  if (state.currentColumn >= state.board[state.currentRow].length) {
+  if (state.currentTile >= state.board[state.currentRow].length) {
     return state;
   }
 
@@ -54,11 +55,8 @@ function addLetter(state: GameState, letter: Letter): GameState {
   }
 
   const board = state.board.map((row, rowIndex) =>
-    row.map((tile, columnIndex) => {
-      if (
-        rowIndex === state.currentRow &&
-        columnIndex === state.currentColumn
-      ) {
+    row.map((tile, tileIndex) => {
+      if (rowIndex === state.currentRow && tileIndex === state.currentTile) {
         return { letter, status: LetterStatus.Unevaluated };
       }
       return tile;
@@ -68,7 +66,7 @@ function addLetter(state: GameState, letter: Letter): GameState {
   return {
     ...state,
     board,
-    currentColumn: state.currentColumn + 1,
+    currentTile: state.currentTile + 1,
   };
 }
 
@@ -77,15 +75,15 @@ function removeLetter(state: GameState): GameState {
     return state;
   }
 
-  if (state.currentColumn === 0) {
+  if (state.currentTile === 0) {
     return state;
   }
 
   const board = state.board.map((row, rowIndex) =>
-    row.map((tile, columnIndex) => {
+    row.map((tile, tileIndex) => {
       if (
         rowIndex === state.currentRow &&
-        columnIndex === state.currentColumn - 1
+        tileIndex === state.currentTile - 1
       ) {
         return { letter: "", status: LetterStatus.Unevaluated };
       }
@@ -96,7 +94,7 @@ function removeLetter(state: GameState): GameState {
   return {
     ...state,
     board,
-    currentColumn: state.currentColumn - 1,
+    currentTile: state.currentTile - 1,
   };
 }
 
@@ -153,15 +151,18 @@ function submitGuess(state: GameState): GameState {
   const guess = state.board[state.currentRow].map((tile) => tile.letter);
 
   if (!validateGuess(state, guess)) {
-    return state;
+    return {
+      ...state,
+      invalidGuessCount: state.invalidGuessCount + 1,
+    };
   }
 
   const statuses = evaluateGuess(state, guess);
 
   const board = state.board.map((row, rowIndex) =>
-    row.map((tile, columnIndex) => {
+    row.map((tile, tileIndex) => {
       if (rowIndex === state.currentRow) {
-        return { ...tile, status: statuses[columnIndex] };
+        return { ...tile, status: statuses[tileIndex] };
       }
       return tile;
     }),
@@ -178,8 +179,9 @@ function submitGuess(state: GameState): GameState {
     ...state,
     board,
     currentRow: state.currentRow + 1,
-    currentColumn: 0,
+    currentTile: 0,
     status,
+    invalidGuessCount: 0,
   };
 }
 

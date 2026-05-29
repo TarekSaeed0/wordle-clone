@@ -30,9 +30,10 @@ export type GameState = {
   language: Language;
   board: Board;
   currentRow: number;
-  currentColumn: number;
+  currentTile: number;
   status: GameStatus;
   answer: Letter[];
+  invalidGuessCount: number;
 };
 
 export type GameOptions = {

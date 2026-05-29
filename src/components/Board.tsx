@@ -4,14 +4,14 @@ import type { Board } from "../types/game";
 
 function Board({
   board,
-  invalidGuessKey = 0,
+  currentRow,
+  rowShakeKey = 0,
 }: {
   board: Board;
-  invalidGuessKey?: number;
+  currentRow: number;
+  rowShakeKey?: number;
 }) {
   const { direction } = useLanguage();
-
-  const currentGuessIndex = board.length - 1;
 
   return (
     <div
@@ -22,14 +22,14 @@ function Board({
         direction,
       }}
     >
-      {board.map((row, i) => (
+      {board.map((row, rowIndex) => (
         <Row
-          key={i === currentGuessIndex ? `${i}-${invalidGuessKey}` : i}
+          key={
+            rowIndex === currentRow ? `${rowIndex}-${rowShakeKey}` : rowIndex
+          }
           row={row}
           className={`${
-            i === currentGuessIndex && invalidGuessKey !== 0
-              ? "animate-shake"
-              : ""
+            rowIndex === currentRow && rowShakeKey !== 0 ? "animate-shake" : ""
           }`}
         />
       ))}

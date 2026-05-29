@@ -55,7 +55,11 @@ function App() {
       <main className="flex-1 flex flex-col items-center justify-center p-2">
         <LanguageProvider language={state.language}>
           <div className="w-fit mb-2.5">
-            <Board board={state.board} />
+            <Board
+              board={state.board}
+              currentRow={state.currentRow}
+              rowShakeKey={state.invalidGuessCount}
+            />
           </div>
           <div className="w-fit">
             <Keyboard
