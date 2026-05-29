@@ -1,7 +1,21 @@
-# Tauri + React + Typescript
+<h1 align="center">Wordle Clone</h1>
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+<p align="center"> Customizable wordle clone built with React </p>
 
-## Recommended IDE Setup
+<div align="center">
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+<a href="https://github.com/TarekSaeed0/wordle-clone/pulse">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/github/last-commit/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23151b23&color=%234493f8">
+    <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/last-commit/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23f6f8fa&color=%230969da">
+    <img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23151b23&color=%234493f8">
+  </picture>
+</a>
+<a href="https://github.com/TarekSaeed0/wordle-clone/stargazers">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/github/stars/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23151b23&color=%234493f8">
+    <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23f6f8fa&color=%230969da">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TarekSaeed0/wordle-clone?style=for-the-badge&labelColor=%23151b23&color=%234493f8">
+  </picture>
+    </a>
+</div>
