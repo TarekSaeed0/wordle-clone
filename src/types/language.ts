@@ -2,6 +2,8 @@ import { KeyboardLayout } from "./keyboard";
 
 export type Letter = string;
 
+export type Word = string;
+
 export const LanguageDirection = {
   LeftToRight: "ltr",
   RightToLeft: "rtl",
@@ -12,7 +14,7 @@ export type LanguageDirection =
 
 export type LanguageDictionary = Record<
   number,
-  { guesses: string[]; answers: string[] }
+  { guesses: Set<Word>; answers: Word[] }
 >;
 
 export interface Language {

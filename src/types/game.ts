@@ -1,4 +1,4 @@
-export type LetterStatus = (typeof LetterStatus)[keyof typeof LetterStatus];
+import { Language, Letter } from "./language";
 
 export const LetterStatus = {
   Unevaluated: "unevaluated",
@@ -7,7 +7,50 @@ export const LetterStatus = {
   Absent: "absent",
 } as const;
 
-export type Guess = {
-  letter: string;
+export type LetterStatus = (typeof LetterStatus)[keyof typeof LetterStatus];
+
+export type Tile = {
+  letter: Letter;
   status: LetterStatus;
-}[];
+};
+
+export type Row = Tile[];
+
+export type Board = Row[];
+
+export const GameStatus = {
+  InProgress: "in_progress",
+  Won: "won",
+  Lost: "lost",
+} as const;
+
+export type GameStatus = (typeof GameStatus)[keyof typeof GameStatus];
+
+export type GameState = {
+  language: Language;
+  board: Board;
+  currentRow: number;
+  currentColumn: number;
+  status: GameStatus;
+  answer: Letter[];
+};
+
+export type GameOptions = {
+  language: Language;
+  wordLength: number;
+  maximumGuesses: number;
+};
+
+export const GameActionType = {
+  AddLetter: "add_letter",
+  RemoveLetter: "remove_letter",
+  SubmitGuess: "submit_guess",
+} as const;
+
+export type GameActionType =
+  (typeof GameActionType)[keyof typeof GameActionType];
+
+export type GameAction =
+  | { type: typeof GameActionType.AddLetter; letter: Letter }
+  | { type: typeof GameActionType.RemoveLetter }
+  | { type: typeof GameActionType.SubmitGuess };

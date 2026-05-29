@@ -1,0 +1,197 @@
+import {
+  GameState,
+  Board,
+  LetterStatus,
+  GameStatus,
+  GameAction,
+  GameActionType,
+  GameOptions,
+} from "../types/game";
+import { Letter } from "../types/language";
+
+export function initializeGameState(options: GameOptions): GameState {
+  console.log("created initial state");
+
+  const board: Board = Array.from({ length: options.maximumGuesses }, () =>
+    Array.from({ length: options.wordLength }, () => ({
+      letter: "",
+      status: LetterStatus.Unevaluated,
+    })),
+  );
+
+  const dictionary = options.language.dictionary[options.wordLength];
+
+  const answer =
+    dictionary.answers[
+      Math.floor(Math.random() * dictionary.answers.length)
+    ].split("");
+
+  console.log("Answer:", answer.join(""));
+
+  return {
+    language: options.language,
+    board,
+    currentRow: 0,
+    currentColumn: 0,
+    status: GameStatus.InProgress,
+    answer,
+  };
+}
+
+function addLetter(state: GameState, letter: Letter): GameState {
+  if (state.status !== GameStatus.InProgress) {
+    return state;
+  }
+
+  if (state.currentColumn >= state.board[state.currentRow].length) {
+    return state;
+  }
+
+  letter = state.language.normalization?.[letter] || letter;
+
+  if (!state.language.letters.includes(letter)) {
+    return state;
+  }
+
+  const board = state.board.map((row, rowIndex) =>
+    row.map((tile, columnIndex) => {
+      if (
+        rowIndex === state.currentRow &&
+        columnIndex === state.currentColumn
+      ) {
+        return { letter, status: LetterStatus.Unevaluated };
+      }
+      return tile;
+    }),
+  );
+
+  return {
+    ...state,
+    board,
+    currentColumn: state.currentColumn + 1,
+  };
+}
+
+function removeLetter(state: GameState): GameState {
+  if (state.status !== GameStatus.InProgress) {
+    return state;
+  }
+
+  if (state.currentColumn === 0) {
+    return state;
+  }
+
+  const board = state.board.map((row, rowIndex) =>
+    row.map((tile, columnIndex) => {
+      if (
+        rowIndex === state.currentRow &&
+        columnIndex === state.currentColumn - 1
+      ) {
+        return { letter: "", status: LetterStatus.Unevaluated };
+      }
+      return tile;
+    }),
+  );
+
+  return {
+    ...state,
+    board,
+    currentColumn: state.currentColumn - 1,
+  };
+}
+
+function validateGuess(state: GameState, guess: Letter[]): boolean {
+  if (guess.some((letter) => letter === "")) {
+    return false;
+  }
+
+  const dictionary = state.language.dictionary[guess.length];
+
+  return dictionary.guesses.has(guess.join(""));
+}
+
+function evaluateGuess(state: GameState, guess: Letter[]): LetterStatus[] {
+  const statuses: LetterStatus[] = Array.from(
+    { length: guess.length },
+    () => LetterStatus.Absent,
+  );
+
+  const answerLetterCount = state.answer.reduce(
+    (count, letter) => {
+      count[letter] = (count[letter] || 0) + 1;
+      return count;
+    },
+    {} as Record<Letter, number>,
+  );
+
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === state.answer[i]) {
+      statuses[i] = LetterStatus.Correct;
+      answerLetterCount[guess[i]]--;
+    }
+  }
+
+  for (let i = 0; i < guess.length; i++) {
+    if (statuses[i] === LetterStatus.Correct) {
+      continue;
+    }
+
+    if (answerLetterCount[guess[i]] > 0) {
+      statuses[i] = LetterStatus.Present;
+      answerLetterCount[guess[i]]--;
+    }
+  }
+
+  return statuses;
+}
+
+function submitGuess(state: GameState): GameState {
+  if (state.status !== GameStatus.InProgress) {
+    return state;
+  }
+
+  const guess = state.board[state.currentRow].map((tile) => tile.letter);
+
+  if (!validateGuess(state, guess)) {
+    return state;
+  }
+
+  const statuses = evaluateGuess(state, guess);
+
+  const board = state.board.map((row, rowIndex) =>
+    row.map((tile, columnIndex) => {
+      if (rowIndex === state.currentRow) {
+        return { ...tile, status: statuses[columnIndex] };
+      }
+      return tile;
+    }),
+  );
+
+  let status: GameStatus = GameStatus.InProgress;
+  if (statuses.every((status) => status === LetterStatus.Correct)) {
+    status = GameStatus.Won;
+  } else if (state.currentRow + 1 >= state.board.length) {
+    status = GameStatus.Lost;
+  }
+
+  return {
+    ...state,
+    board,
+    currentRow: state.currentRow + 1,
+    currentColumn: 0,
+    status,
+  };
+}
+
+export function gameReducer(state: GameState, action: GameAction): GameState {
+  switch (action.type) {
+    case GameActionType.AddLetter:
+      return addLetter(state, action.letter);
+    case GameActionType.RemoveLetter:
+      return removeLetter(state);
+    case GameActionType.SubmitGuess:
+      return submitGuess(state);
+    default:
+      return state;
+  }
+}

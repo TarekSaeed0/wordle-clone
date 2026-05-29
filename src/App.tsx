@@ -1,130 +1,31 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import "./App.css";
+import { useMemo } from "react";
 import Board from "./components/Board";
 import Keyboard from "./components/Keyboard";
-import LanguageContext from "./context/LanguageContext";
-import languageFromJson from "./utils/languageFromJson";
-import english from "./data/english.json";
-import { LetterStatus, Guess } from "./types/game";
-import { Letter } from "./types/language";
-import evaluateGuess from "./utils/evaluateGuess";
+import { useKeyboardInput } from "./hooks/useKeyboardInput";
+import { LanguageProvider } from "./providers/LanguageProvider";
+import { languageFromJson } from "./utils/languageFromJson";
+import { GameOptions, LetterStatus } from "./types/game";
+import { useGame } from "./hooks/useGame";
+import english from "./data/languages/english.json";
+import "./App.css";
+
+const options: GameOptions = {
+  language: languageFromJson(english),
+  wordLength: 5,
+  maximumGuesses: 6,
+};
 
 function App() {
-  const language = useMemo(() => languageFromJson(english), []);
-  const [wordLength] = useState(5);
-  const [guessCount] = useState(6);
-  const [guesses, setGuesses] = useState<Guess[]>([[]]);
+  const { state, handleLetter, handleBackspace, handleEnter } =
+    useGame(options);
 
-  const handleLetter = useCallback(
-    (letter: Letter) => {
-      setGuesses((guesses) => {
-        const currentGuess = guesses[guesses.length - 1];
-        if (currentGuess.length === wordLength) {
-          return guesses;
-        }
-
-        return [
-          ...guesses.slice(0, -1),
-          [...currentGuess, { letter, status: LetterStatus.Unevaluated }],
-        ];
-      });
-    },
-    [guesses, wordLength],
-  );
-
-  const dictionary = useMemo(
-    () => language.dictionary[wordLength],
-    [language, wordLength],
-  );
-
-  const validGuesses = useMemo(
-    () => new Set([...dictionary.guesses, ...dictionary.answers]),
-    [dictionary],
-  );
-  const validAnswers = dictionary.answers;
-
-  const answer = useMemo(
-    () => validAnswers[Math.floor(Math.random() * validAnswers.length)],
-    [validAnswers],
-  );
-  console.log(answer);
-
-  const [invalidGuessKey, setInvalidGuessKey] = useState(0);
-
-  const handleEnter = useCallback(() => {
-    const currentGuess = guesses[guesses.length - 1];
-    if (currentGuess.length !== wordLength) {
-      setInvalidGuessKey((key) => key + 1);
-      return;
-    }
-
-    const word = currentGuess.map(({ letter }) => letter).join("");
-    if (!validGuesses.has(word)) {
-      setInvalidGuessKey((key) => key + 1);
-      return;
-    }
-
-    const statuses = evaluateGuess(
-      currentGuess.map(({ letter }) => letter),
-      answer.split(""),
-    );
-
-    setInvalidGuessKey(0);
-
-    setGuesses((guesses) => {
-      const newGuesses = [
-        ...guesses.slice(0, -1),
-        currentGuess.map(({ letter }, index) => ({
-          letter,
-          status: statuses[index],
-        })),
-      ];
-
-      if (guesses.length !== guessCount) {
-        newGuesses.push([]);
-      }
-
-      return newGuesses;
-    });
-  }, [guesses, wordLength, validGuesses, answer]);
-
-  const handleBackspace = useCallback(() => {
-    setGuesses((guesses) => {
-      const currentGuess = guesses[guesses.length - 1];
-      if (currentGuess.length === 0) {
-        return guesses;
-      }
-
-      return [...guesses.slice(0, -1), currentGuess.slice(0, -1)];
-    });
-  }, [guesses]);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Enter") {
-        handleEnter();
-      } else if (event.key === "Backspace") {
-        handleBackspace();
-      } else {
-        const normalizedKey = language.normalization?.[event.key] || event.key;
-        if (language.letters.includes(normalizedKey)) {
-          handleLetter(normalizedKey);
-        }
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleEnter, handleBackspace, handleLetter, language]);
+  useKeyboardInput(handleLetter, handleBackspace, handleEnter);
 
   let status = useMemo(() => {
     const status: Record<string, LetterStatus> = {};
 
-    for (const guess of guesses) {
-      for (const { letter, status: letterStatus } of guess) {
+    for (const row of state.board) {
+      for (const { letter, status: letterStatus } of row) {
         switch (letterStatus) {
           case LetterStatus.Correct:
             status[letter] = LetterStatus.Correct;
@@ -144,7 +45,7 @@ function App() {
     }
 
     return status;
-  }, [guesses]);
+  }, [state.board]);
 
   return (
     <div className="min-h-screen flex flex-col bg-(--bg-color)">
@@ -152,14 +53,9 @@ function App() {
         <h1 className="text-3xl">Wordle</h1>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center p-2">
-        <LanguageContext value={language}>
+        <LanguageProvider language={state.language}>
           <div className="w-fit mb-2.5">
-            <Board
-              wordLength={wordLength}
-              guessCount={guessCount}
-              guesses={guesses}
-              invalidGuessKey={invalidGuessKey}
-            />
+            <Board board={state.board} />
           </div>
           <div className="w-fit">
             <Keyboard
@@ -169,7 +65,7 @@ function App() {
               onBackspace={handleBackspace}
             />
           </div>
-        </LanguageContext>
+        </LanguageProvider>
       </main>
     </div>
   );
