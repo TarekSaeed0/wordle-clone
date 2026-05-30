@@ -14,6 +14,8 @@
   --key-bg-color: #818384;
   --key-evaluated-text-color: #f8f8f8;
   --key-evaluated-absent-text-color: #fff;
+  --toast-bg-color: #f8f8f8;
+  --toast-text-color: #121213;
 }
 
 :root {
@@ -55,4 +57,18 @@
 
 .animate-shake {
   animation: shake 500ms ease;
+}
+
+@keyframes fade-out {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 2000ms ease;
 }
