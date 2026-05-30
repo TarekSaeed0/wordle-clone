@@ -63,15 +63,20 @@ function Game() {
   useEffect(() => {
     if (state.status === GameStatus.Won) {
       const message = [
-        "Genius!",
-        "Magnificent!",
-        "Impressive!",
-        "Splendid!",
-        "Great!",
-        "Phew!",
+        "Genius",
+        "Magnificent",
+        "Impressive",
+        "Splendid",
+        "Great",
+        "Phew",
       ];
+
+      const messageIndex =
+        Math.floor((state.currentRow / state.board.length) * message.length) -
+        1;
+
       showToast({
-        message: message[state.currentRow - 1],
+        message: message[messageIndex],
         duration: 5000,
       });
     } else if (state.status === GameStatus.Lost) {
@@ -83,23 +88,23 @@ function Game() {
   }, [state.status]);
 
   return (
-    <LanguageProvider language={state.language}>
-      <div className="w-fit m-2.5">
-        <Board
-          board={state.board}
-          currentRow={state.currentRow}
-          rowShakeKey={state.invalidGuessCount}
-        />
-      </div>
-      <div className="w-fit">
+    <main className="flex-1 px-2 py-4 flex flex-col items-center justify-end gap-4">
+      <LanguageProvider language={state.language}>
+        <div className="flex-1 flex items-center">
+          <Board
+            board={state.board}
+            currentRow={state.currentRow}
+            rowShakeKey={state.invalidGuessCount}
+          />
+        </div>
         <Keyboard
           status={status}
           onLetter={handleLetter}
           onEnter={handleEnter}
           onBackspace={handleBackspace}
         />
-      </div>
-    </LanguageProvider>
+      </LanguageProvider>
+    </main>
   );
 }
 
