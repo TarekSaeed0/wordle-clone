@@ -24,7 +24,7 @@ function Tile({ tile }: { tile: Tile }) {
 
   return (
     <div
-      className={`min-w-13 aspect-square border-2 flex items-center justify-center text-[2rem] font-bold uppercase select-none ${statusClasses.get(tile.status ?? null)}`}
+      className={`aspect-square border-2 flex items-center justify-center text-[2rem] font-bold uppercase select-none ${statusClasses.get(tile.status ?? null)}`}
     >
       {tile.letter}
     </div>

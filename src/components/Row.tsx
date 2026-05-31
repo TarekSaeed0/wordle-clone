@@ -3,9 +3,7 @@ import type { Row } from "../types/game";
 
 function Row({ row, className = "" }: { row: Row; className?: string }) {
   return (
-    <div
-      className={`grid grid-cols-subgrid gap-1.5 col-span-full ${className}`}
-    >
+    <div className={`grid grid-cols-subgrid col-span-full ${className}`}>
       {row.map((tile, tileIndex) => (
         <Tile key={tileIndex} tile={tile} />
       ))}

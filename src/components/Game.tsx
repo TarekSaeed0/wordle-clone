@@ -88,9 +88,9 @@ function Game() {
   }, [state.status]);
 
   return (
-    <main className="flex-1 px-2 py-4 flex flex-col items-center justify-end gap-4">
+    <main className="flex-1 min-h-0 p-2 flex flex-col items-center justify-end gap-4">
       <LanguageProvider language={state.language}>
-        <div className="flex-1 flex items-center">
+        <div className="flex-1 w-full min-h-0">
           <Board
             board={state.board}
             currentRow={state.currentRow}
