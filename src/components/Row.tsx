@@ -5,7 +5,7 @@ function Row({ row, className = "" }: { row: Row; className?: string }) {
   return (
     <div className={`grid grid-cols-subgrid col-span-full ${className}`}>
       {row.map((tile, tileIndex) => (
-        <Tile key={tileIndex} tile={tile} />
+        <Tile key={tileIndex} tile={tile} index={tileIndex} />
       ))}
     </div>
   );

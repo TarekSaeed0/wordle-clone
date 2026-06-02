@@ -2,18 +2,24 @@
 
 @theme {
   --bg-color: #121213;
-  --header-text-color: #fff;
-  --header-border-color: #424242;
+  --text-color: #fff;
+  --border-color: #424242;
+
   --correct-color: #538d4e;
   --present-color: #b59f3b;
   --absent-color: #3a3a3c;
+
   --tile-text-color: #f8f8f8;
   --tile-border-color: #3a3a3c;
   --tile-unevaluated-border-color: #565758;
-  --key-text-color: #f8f8f8;
+
   --key-bg-color: #818384;
+  --key-text-color: #f8f8f8;
   --key-evaluated-text-color: #f8f8f8;
   --key-evaluated-absent-text-color: #fff;
+  --key-height: --spacing(14);
+  --key-gap: --spacing(2);
+
   --toast-bg-color: #f8f8f8;
   --toast-text-color: #121213;
 }
@@ -57,6 +63,31 @@
 
 .animate-shake {
   animation: shake 500ms ease;
+}
+
+@keyframes flip {
+  0%,
+  100% {
+    transform: rotateX(0);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+}
+
+@keyframes color {
+  0%,
+  100% {
+    background-color: transparent;
+    color: var(--key-text-color);
+    border-color: var(--tile-unevaluated-border-color);
+  }
+}
+
+.animate-reveal {
+  animation:
+    flip 500ms linear,
+    color 250ms linear;
 }
 
 @keyframes fade-out {

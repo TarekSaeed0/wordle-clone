@@ -10,8 +10,6 @@ import {
 import { Letter } from "../types/language";
 
 export function initializeGameState(options: GameOptions): GameState {
-  console.log("created initial state");
-
   const board: Board = Array.from({ length: options.maximumGuesses }, () =>
     Array.from({ length: options.wordLength }, () => ({
       letter: "",
@@ -33,14 +31,14 @@ export function initializeGameState(options: GameOptions): GameState {
     board,
     currentRow: 0,
     currentTile: 0,
-    status: GameStatus.InProgress,
+    status: GameStatus.Playing,
     answer,
     invalidGuessCount: 0,
   };
 }
 
 function addLetter(state: GameState, letter: Letter): GameState {
-  if (state.status !== GameStatus.InProgress) {
+  if (state.status !== GameStatus.Playing) {
     return state;
   }
 
@@ -71,7 +69,7 @@ function addLetter(state: GameState, letter: Letter): GameState {
 }
 
 function removeLetter(state: GameState): GameState {
-  if (state.status !== GameStatus.InProgress) {
+  if (state.status !== GameStatus.Playing) {
     return state;
   }
 
@@ -144,7 +142,7 @@ function evaluateGuess(state: GameState, guess: Letter[]): LetterStatus[] {
 }
 
 function submitGuess(state: GameState): GameState {
-  if (state.status !== GameStatus.InProgress) {
+  if (state.status !== GameStatus.Playing) {
     return state;
   }
 
@@ -168,7 +166,7 @@ function submitGuess(state: GameState): GameState {
     }),
   );
 
-  let status: GameStatus = GameStatus.InProgress;
+  let status: GameStatus = GameStatus.Playing;
   if (statuses.every((status) => status === LetterStatus.Correct)) {
     status = GameStatus.Won;
   } else if (state.currentRow + 1 >= state.board.length) {
@@ -185,6 +183,14 @@ function submitGuess(state: GameState): GameState {
   };
 }
 
+function resetGame(state: GameState): GameState {
+  return initializeGameState({
+    language: state.language,
+    wordLength: state.board[0].length,
+    maximumGuesses: state.board.length,
+  });
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case GameActionType.AddLetter:
@@ -193,6 +199,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return removeLetter(state);
     case GameActionType.SubmitGuess:
       return submitGuess(state);
+    case GameActionType.Reset:
+      return resetGame(state);
     default:
       return state;
   }

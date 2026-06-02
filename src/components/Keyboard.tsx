@@ -29,7 +29,7 @@ function Keyboard({
 
   return (
     <div
-      className="grid gap-2"
+      className="grid gap-(--key-gap)"
       style={{ gridTemplateColumns: `repeat(${maximumWidth}, minmax(0, 1fr))` }}
     >
       {keyboardLayout.map((row, rowIndex) => (

@@ -22,5 +22,15 @@ export function useGame(options: GameOptions) {
     dispatch({ type: GameActionType.SubmitGuess });
   }, []);
 
-  return { state, handleLetter, handleBackspace, handleEnter };
+  const handleReset = useCallback(() => {
+    dispatch({ type: GameActionType.Reset });
+  }, []);
+
+  return {
+    state,
+    handleLetter,
+    handleBackspace,
+    handleEnter,
+    handleReset,
+  };
 }

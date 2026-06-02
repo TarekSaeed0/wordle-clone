@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import Board from "./Board";
 import Keyboard from "./Keyboard";
 import { useKeyboardInput } from "../hooks/useKeyboardInput";
@@ -8,6 +8,8 @@ import { GameOptions, GameStatus, LetterStatus } from "../types/game";
 import { useGame } from "../hooks/useGame";
 import english from "../data/languages/english.json";
 import { useToast } from "../hooks/useToast";
+import { exit } from "@tauri-apps/plugin-process";
+import { useSize } from "../hooks/useSize";
 
 const options: GameOptions = {
   language: languageFromJson(english),
@@ -16,7 +18,7 @@ const options: GameOptions = {
 };
 
 function Game() {
-  const { state, handleLetter, handleBackspace, handleEnter } =
+  const { state, handleLetter, handleBackspace, handleEnter, handleReset } =
     useGame(options);
 
   useKeyboardInput(handleLetter, handleBackspace, handleEnter);
@@ -87,6 +89,13 @@ function Game() {
     }
   }, [state.status]);
 
+  const handleQuit = useCallback(() => {
+    exit(0);
+  }, []);
+
+  const keyboardRef = useRef(null);
+  const keyboardSize = useSize(keyboardRef);
+
   return (
     <main className="flex-1 min-h-0 p-2 flex flex-col items-center justify-end gap-4">
       <LanguageProvider language={state.language}>
@@ -97,12 +106,37 @@ function Game() {
             rowShakeKey={state.invalidGuessCount}
           />
         </div>
-        <Keyboard
-          status={status}
-          onLetter={handleLetter}
-          onEnter={handleEnter}
-          onBackspace={handleBackspace}
-        />
+        {state.status === GameStatus.Playing ? (
+          <div ref={keyboardRef}>
+            <Keyboard
+              status={status}
+              onLetter={handleLetter}
+              onEnter={handleEnter}
+              onBackspace={handleBackspace}
+            />
+          </div>
+        ) : (
+          <div
+            className="flex items-start justify-center gap-3 "
+            style={{
+              width: keyboardSize.width,
+              height: keyboardSize.height,
+            }}
+          >
+            <button
+              className="px-6 py-3 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-colors duration-100 bg-(--correct-color) text-(--key-evaluated-text-color) hover:bg-(--correct-color)/80 active:bg-(--correct-color)/60 select-none"
+              onClick={handleReset}
+            >
+              Play Again
+            </button>
+            <button
+              className="px-6 py-3 rounded-full flex items-center justify-center font-semibold cursor-pointer transition-colors duration-100 text-(--text-color) border border-(--border-color) hover:bg-(--text-color)/15 active:bg-(--text-color)/30 select-none"
+              onClick={handleQuit}
+            >
+              Quit
+            </button>
+          </div>
+        )}
       </LanguageProvider>
     </main>
   );

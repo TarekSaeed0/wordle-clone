@@ -36,7 +36,7 @@ function Board({
   const { direction } = useLanguage();
 
   const rowCount = board.length;
-  const columnCount = board[0]?.length ?? 0;
+  const columnCount = board[0].length;
 
   const gap = 5;
 

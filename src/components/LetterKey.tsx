@@ -28,7 +28,7 @@ function LetterKey({
 
   return (
     <button
-      className={`px-3 py-6.5 rounded h-14 flex items-center justify-center text-xl font-semibold uppercase cursor-pointer transition-colors duration-100 select-none ${statusClasses[status]}`}
+      className={`px-3 py-6.5 rounded h-(--key-height) flex items-center justify-center text-xl font-semibold uppercase cursor-pointer transition-colors duration-100 select-none ${statusClasses[status]}`}
       style={{ gridColumn: `span ${width}`, direction }}
       aria-label={`Key ${letter}`}
       onClick={() => onClick?.(letter)}

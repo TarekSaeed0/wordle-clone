@@ -19,7 +19,7 @@ export type Row = Tile[];
 export type Board = Row[];
 
 export const GameStatus = {
-  InProgress: "in_progress",
+  Playing: "playing",
   Won: "won",
   Lost: "lost",
 } as const;
@@ -46,6 +46,7 @@ export const GameActionType = {
   AddLetter: "add_letter",
   RemoveLetter: "remove_letter",
   SubmitGuess: "submit_guess",
+  Reset: "reset",
 } as const;
 
 export type GameActionType =
@@ -54,4 +55,5 @@ export type GameActionType =
 export type GameAction =
   | { type: typeof GameActionType.AddLetter; letter: Letter }
   | { type: typeof GameActionType.RemoveLetter }
-  | { type: typeof GameActionType.SubmitGuess };
+  | { type: typeof GameActionType.SubmitGuess }
+  | { type: typeof GameActionType.Reset };
