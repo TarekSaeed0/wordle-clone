@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/TarekSaeed0/wordle-clone/main/src/data/languages/language.schema.json",
+  "title": "Language",
+  "description": "A language for Wordle",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the language",
+      "type": "string"
+    },
+    "direction": {
+      "description": "The direction of the language, either left-to-right or right-to-left",
+      "type": "string",
+      "enum": ["ltr", "rtl"]
+    },
+    "letters": {
+      "description": "The letters of the language",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "keyboardLayout": {
+      "description": "The layout of the keyboard for the language",
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "description": "A key on the keyboard",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "width": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          },
+          "oneOf": [
+            {
+              "description": "A letter key, value must be one of the letters in the language",
+              "properties": {
+                "type": { "const": "letter" },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": ["value"]
+            },
+            {
+              "description": "The Enter key",
+              "properties": {
+                "type": { "const": "enter" }
+              }
+            },
+            {
+              "description": "The Backspace key",
+              "properties": {
+                "type": { "const": "backspace" }
+              }
+            }
+          ],
+          "required": ["type", "width"]
+        }
+      }
+    },
+    "normalization": {
+      "description": "The normalization rules for the language, where the key is a letter in the language and the value is the normalized letter",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "dictionary": {
+      "description": "The dictionary of valid guesses and answers of a specific length for the language",
+      "type": "object",
+      "patternProperties": {
+        "^[1-9][0-9]*$": {
+          "type": "object",
+          "properties": {
+            "guesses": {
+              "description": "The valid guesses of a specific length for the language",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "answers": {
+              "description": "The valid answers of a specific length for the language",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

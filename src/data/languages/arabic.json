@@ -1,4 +1,5 @@
 {
+  "$schema": "./language.schema.json",
   "name": "Arabic",
   "direction": "rtl",
   "letters": [
