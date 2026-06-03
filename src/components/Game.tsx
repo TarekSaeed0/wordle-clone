@@ -97,7 +97,7 @@ function Game() {
   const keyboardSize = useSize(keyboardRef);
 
   return (
-    <main className="flex-1 min-h-0 p-2 flex flex-col items-center justify-end gap-4">
+    <div className="size-full flex flex-col items-center justify-end gap-4">
       <LanguageProvider language={state.language}>
         <div className="flex-1 w-full min-h-0">
           <Board
@@ -138,7 +138,7 @@ function Game() {
           </div>
         )}
       </LanguageProvider>
-    </main>
+    </div>
   );
 }
 
