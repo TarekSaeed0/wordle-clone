@@ -1,1 +1,1 @@
-export const DEFAULT_TOAST_DURATION = 2000;
+export const DEFAULT_TOAST_DURATION = 2;

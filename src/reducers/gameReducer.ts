@@ -13,7 +13,7 @@ export function initializeGameState(options: GameOptions): GameState {
   const board: Board = Array.from({ length: options.maximumGuesses }, () =>
     Array.from({ length: options.wordLength }, () => ({
       letter: "",
-      status: LetterStatus.Unevaluated,
+      status: LetterStatus.Empty,
     })),
   );
 
@@ -83,7 +83,7 @@ function removeLetter(state: GameState): GameState {
         rowIndex === state.currentRow &&
         tileIndex === state.currentTile - 1
       ) {
-        return { letter: "", status: LetterStatus.Unevaluated };
+        return { letter: "", status: LetterStatus.Empty };
       }
       return tile;
     }),

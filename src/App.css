@@ -10,7 +10,7 @@
   --absent-color: #3a3a3c;
 
   --tile-text-color: #f8f8f8;
-  --tile-border-color: #3a3a3c;
+  --tile-empty-border-color: #3a3a3c;
   --tile-unevaluated-border-color: #565758;
 
   --key-bg-color: #818384;
@@ -38,71 +38,4 @@
 
   background-color: var(--bg-color);
   color: var(--text-color);
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  10%,
-  90% {
-    transform: translateX(-1px);
-  }
-  20%,
-  80% {
-    transform: translateX(2px);
-  }
-  30%,
-  50%,
-  70% {
-    transform: translateX(-4px);
-  }
-  40%,
-  60% {
-    transform: translateX(4px);
-  }
-}
-
-.animate-shake {
-  animation: shake 500ms ease;
-}
-
-@keyframes flip {
-  0%,
-  100% {
-    transform: rotateX(0);
-  }
-  50% {
-    transform: rotateX(90deg);
-  }
-}
-
-@keyframes color {
-  0%,
-  100% {
-    background-color: transparent;
-    color: var(--key-text-color);
-    border-color: var(--tile-unevaluated-border-color);
-  }
-}
-
-.animate-reveal {
-  animation:
-    flip 500ms linear,
-    color 250ms linear;
-}
-
-@keyframes fade-out {
-  0%,
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.animate-fade-out {
-  animation: fade-out 2000ms ease;
 }

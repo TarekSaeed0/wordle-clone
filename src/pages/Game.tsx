@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import Board from "./Board";
-import Keyboard from "./Keyboard";
+import Board from "../components/Board";
+import Keyboard from "../components/Keyboard";
 import { useKeyboardInput } from "../hooks/useKeyboardInput";
 import { LanguageProvider } from "../providers/LanguageProvider";
 import { languageFromJson } from "../utils/languageFromJson";
@@ -10,6 +10,9 @@ import english from "../data/languages/english.json";
 import { useToast } from "../hooks/useToast";
 import { exit } from "@tauri-apps/plugin-process";
 import { useSize } from "../hooks/useSize";
+import { useHeader } from "../hooks/useHeader";
+import { HiOutlineCog } from "react-icons/hi";
+import { Link } from "react-router";
 
 const options: GameOptions = {
   language: languageFromJson(english),
@@ -18,6 +21,17 @@ const options: GameOptions = {
 };
 
 function Game() {
+  useHeader({
+    title: "Wordle",
+    rightContent: (
+      <button className="p-1 rounded-full cursor-pointer transition-colors duration-100 hover:bg-(--text-color)/15 hover:border-(--text-color) active:bg-(--text-color)/30 ">
+        <Link to="/settings">
+          <HiOutlineCog size={32} />
+        </Link>
+      </button>
+    ),
+  });
+
   const { state, handleLetter, handleBackspace, handleEnter, handleReset } =
     useGame(options);
 
@@ -79,12 +93,12 @@ function Game() {
 
       showToast({
         message: message[messageIndex],
-        duration: 5000,
+        duration: 5,
       });
     } else if (state.status === GameStatus.Lost) {
       showToast({
         message: `${state.answer.join("").toUpperCase()}`,
-        duration: 5000,
+        duration: 5,
       });
     }
   }, [state.status]);

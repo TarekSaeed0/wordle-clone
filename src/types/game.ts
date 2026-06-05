@@ -1,6 +1,7 @@
 import { Language, Letter } from "./language";
 
 export const LetterStatus = {
+  Empty: "empty",
   Unevaluated: "unevaluated",
   Correct: "correct",
   Present: "present",

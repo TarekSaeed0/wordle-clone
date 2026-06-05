@@ -16,12 +16,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
     setToasts((toasts) => [...toasts, newToast]);
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setToasts((toasts) => toasts.filter((toast) => toast.id !== newToast.id));
-    }, newToast.duration);
+    }, newToast.duration * 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
-  const value = useMemo(() => ({ toasts, showToast }), [toasts, showToast]);
+  const value = useMemo(() => ({ showToast }), [showToast]);
 
   return (
     <ToastContext.Provider value={value}>

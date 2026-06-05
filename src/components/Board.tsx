@@ -95,15 +95,9 @@ function Board({
       >
         {board.map((row, rowIndex) => (
           <Row
-            key={
-              rowIndex === currentRow ? `${rowIndex}-${rowShakeKey}` : rowIndex
-            }
+            key={rowIndex}
             row={row}
-            className={`${
-              rowIndex === currentRow && rowShakeKey !== 0
-                ? "animate-shake"
-                : ""
-            }`}
+            shakeKey={rowIndex === currentRow ? rowShakeKey : 0}
           />
         ))}
       </div>
