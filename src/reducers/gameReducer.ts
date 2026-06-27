@@ -20,8 +20,8 @@ export function initializeGameState(options: GameOptions): GameState {
   const dictionary = options.language.dictionary[options.wordLength];
 
   const answer =
-    dictionary.answers[
-      Math.floor(Math.random() * dictionary.answers.length)
+    dictionary.validAnswers[
+      Math.floor(Math.random() * dictionary.validAnswers.length)
     ].split("");
 
   console.log("Answer:", answer.join(""));
@@ -32,6 +32,10 @@ export function initializeGameState(options: GameOptions): GameState {
     currentRow: 0,
     currentTile: 0,
     status: GameStatus.Playing,
+    validGuesses: new Set([
+      ...dictionary.validGuesses,
+      ...dictionary.validAnswers,
+    ]),
     answer,
     invalidGuessCount: 0,
   };
@@ -101,9 +105,7 @@ function validateGuess(state: GameState, guess: Letter[]): boolean {
     return false;
   }
 
-  const dictionary = state.language.dictionary[guess.length];
-
-  return dictionary.guesses.has(guess.join(""));
+  return state.validGuesses.has(guess.join(""));
 }
 
 function evaluateGuess(state: GameState, guess: Letter[]): LetterStatus[] {

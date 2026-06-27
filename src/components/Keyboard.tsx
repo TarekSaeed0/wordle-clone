@@ -1,6 +1,5 @@
 import { HiOutlineBackspace } from "react-icons/hi";
-import { KeyboardLayoutKeyType } from "../types/keyboard";
-import { Letter } from "../types/language";
+import { KeyType, Letter } from "../types/language";
 import { LetterStatus } from "../types/game";
 import { useMemo } from "react";
 import { useLanguage } from "../hooks/useLanguage";
@@ -18,12 +17,11 @@ function Keyboard({
   onEnter: () => void;
   onBackspace: () => void;
 }) {
-  const { keyboardLayout } = useLanguage();
+  const { keyboard } = useLanguage();
 
   const widths = useMemo(
-    () =>
-      keyboardLayout.map((row) => row.reduce((sum, key) => sum + key.width, 0)),
-    [keyboardLayout],
+    () => keyboard.map((row) => row.reduce((sum, key) => sum + key.width, 0)),
+    [keyboard],
   );
   const maximumWidth = useMemo(() => Math.max(...widths), [widths]);
 
@@ -32,7 +30,7 @@ function Keyboard({
       className="grid gap-(--key-gap)"
       style={{ gridTemplateColumns: `repeat(${maximumWidth}, minmax(0, 1fr))` }}
     >
-      {keyboardLayout.map((row, rowIndex) => (
+      {keyboard.map((row, rowIndex) => (
         <div
           key={rowIndex}
           className="grid gap-1.5 grid-cols-subgrid col-span-full"
@@ -43,17 +41,17 @@ function Keyboard({
         >
           {row.map((key, keyIndex) => {
             switch (key.type) {
-              case KeyboardLayoutKeyType.Letter:
+              case KeyType.Letter:
                 return (
                   <LetterKey
                     key={keyIndex}
-                    letter={key.value}
-                    status={status[key.value] ?? "unevaluated"}
+                    letter={key.letter}
+                    status={status[key.letter] ?? "unevaluated"}
                     width={key.width}
                     onClick={onLetter}
                   />
                 );
-              case KeyboardLayoutKeyType.Enter:
+              case KeyType.Enter:
                 return (
                   <FunctionKey
                     key={keyIndex}
@@ -63,7 +61,7 @@ function Keyboard({
                     <span className="text-xs">ENTER</span>
                   </FunctionKey>
                 );
-              case KeyboardLayoutKeyType.Backspace:
+              case KeyType.Backspace:
                 return (
                   <FunctionKey
                     key={keyIndex}

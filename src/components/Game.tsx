@@ -3,35 +3,22 @@ import Board from "../components/Board";
 import Keyboard from "../components/Keyboard";
 import { useKeyboardInput } from "../hooks/useKeyboardInput";
 import { LanguageProvider } from "../providers/LanguageProvider";
-import { languageFromJson } from "../utils/languageFromJson";
 import { GameOptions, GameStatus, LetterStatus } from "../types/game";
 import { useGame } from "../hooks/useGame";
-import english from "../data/languages/english.json";
 import { useToast } from "../hooks/useToast";
 import { exit } from "@tauri-apps/plugin-process";
 import { useSize } from "../hooks/useSize";
-import { useHeader } from "../hooks/useHeader";
-import { HiOutlineCog } from "react-icons/hi";
-import { Link } from "react-router";
 
-const options: GameOptions = {
-  language: languageFromJson(english),
-  wordLength: 5,
-  maximumGuesses: 6,
-};
+const WIN_MESSAGES = [
+  "Genius",
+  "Magnificent",
+  "Impressive",
+  "Splendid",
+  "Great",
+  "Phew",
+];
 
-function Game() {
-  useHeader({
-    title: "Wordle",
-    rightContent: (
-      <button className="p-1 rounded-full cursor-pointer transition-colors duration-100 hover:bg-(--text-color)/15 hover:border-(--text-color) active:bg-(--text-color)/30 ">
-        <Link to="/settings">
-          <HiOutlineCog size={32} />
-        </Link>
-      </button>
-    ),
-  });
-
+function Game({ options }: { options: GameOptions }) {
   const { state, handleLetter, handleBackspace, handleEnter, handleReset } =
     useGame(options);
 
@@ -78,21 +65,13 @@ function Game() {
 
   useEffect(() => {
     if (state.status === GameStatus.Won) {
-      const message = [
-        "Genius",
-        "Magnificent",
-        "Impressive",
-        "Splendid",
-        "Great",
-        "Phew",
-      ];
-
       const messageIndex =
-        Math.floor((state.currentRow / state.board.length) * message.length) -
-        1;
+        Math.floor(
+          (state.currentRow / state.board.length) * WIN_MESSAGES.length,
+        ) - 1;
 
       showToast({
-        message: message[messageIndex],
+        message: WIN_MESSAGES[messageIndex],
         duration: 5,
       });
     } else if (state.status === GameStatus.Lost) {

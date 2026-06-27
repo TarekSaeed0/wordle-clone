@@ -8,6 +8,9 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "process:default"
+    "process:default",
+    "fs:default",
+    "fs:allow-resource-read-recursive",
+    "fs:allow-applocaldata-read-recursive"
   ]
 }

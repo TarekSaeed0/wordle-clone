@@ -7,12 +7,14 @@ import {
   Route,
   useLocation,
   useOutlet,
+  Navigate,
 } from "react-router";
 import { HeaderProvider } from "./providers/HeaderProvider";
-import Settings from "./pages/Settings";
+import SettingsPage from "./pages/SettingsPage";
 import { AnimatePresence, motion } from "motion/react";
+import NewGamePage from "./pages/NewGamePage";
 
-function PageTransition() {
+function TransitionLayout() {
   const loction = useLocation();
   const outlet = useOutlet();
 
@@ -40,9 +42,11 @@ function App() {
           <HeaderProvider>
             <main className="flex-1 min-h-0 p-2">
               <Routes>
-                <Route element={<PageTransition />}>
-                  <Route path="/" element={<Game />} />
-                  <Route path="/settings" element={<Settings />} />
+                <Route path="/" element={<TransitionLayout />}>
+                  <Route index element={<Navigate to="new-game" replace />} />
+                  <Route path="game" element={<Game />} />
+                  <Route path="new-game" element={<NewGamePage />} />
+                  <Route path="settings" element={<SettingsPage />} />
                 </Route>
               </Routes>
             </main>

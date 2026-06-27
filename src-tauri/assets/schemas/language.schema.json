@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/TarekSaeed0/wordle-clone/refs/heads/main/src/data/languages/language.schema.json",
+  "title": "Language",
+  "description": "A language for Wordle.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the language.",
+      "type": "string",
+      "minLength": 1
+    },
+    "direction": {
+      "description": "The direction of the language, either left-to-right or right-to-left.",
+      "type": "string",
+      "enum": ["ltr", "rtl"]
+    },
+    "letters": {
+      "description": "The letters of the language.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[^\\s]+$"
+      },
+      "uniqueItems": true
+    },
+    "keyboard": {
+      "description": "The layout of the keyboard for the language.",
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "description": "A key on the keyboard.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "width": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          },
+          "oneOf": [
+            {
+              "description": "A letter key, letter must be one of the letters in the language.",
+              "properties": {
+                "type": { "const": "letter" },
+                "letter": {
+                  "type": "string",
+                  "pattern": "^[^\\s]+$"
+                }
+              },
+              "required": ["letter"]
+            },
+            {
+              "description": "The Enter key.",
+              "properties": {
+                "type": { "const": "enter" }
+              }
+            },
+            {
+              "description": "The Backspace key.",
+              "properties": {
+                "type": { "const": "backspace" }
+              }
+            }
+          ],
+          "required": ["type", "width"]
+        }
+      }
+    },
+    "normalizations": {
+      "description": "The normalization rules for the language, where the key is a original letter and the value is the normalized letter.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "guesses": {
+      "description": "The valid guesses for the language. must consist only of letters in the language.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[^\\s]+$"
+      }
+    },
+    "answers": {
+      "description": "The valid answers for the language. must be a subset of valid guesses.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[^\\s]+$"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "direction",
+    "letters",
+    "keyboard",
+    "normalizations",
+    "guesses",
+    "answers"
+  ]
+}

@@ -39,3 +39,40 @@
   background-color: var(--bg-color);
   color: var(--text-color);
 }
+
+@layer components {
+  input[type="text"],
+  input[type="number"],
+  select {
+    @apply px-4 py-2 rounded border border-(--border-color) outline-none;
+    font: inherit;
+  }
+
+  select {
+    @apply pr-8;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+  }
+
+  input[type="text"]:disabled,
+  input[type="number"]:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}

@@ -1,6 +1,6 @@
 <h1 align="center">Wordle Clone</h1>
 
-<p align="center"> Customizable wordle clone built with React </p>
+<p align="center"> Customizable wordle clone built with React and Tauri </p>
 
 <div align="center">
 
@@ -19,3 +19,4 @@
   </picture>
     </a>
 </div>
+

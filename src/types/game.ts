@@ -1,4 +1,4 @@
-import { Language, Letter } from "./language";
+import { Language, Letter, Word } from "./language";
 
 export const LetterStatus = {
   Empty: "empty",
@@ -33,8 +33,17 @@ export type GameState = {
   currentRow: number;
   currentTile: number;
   status: GameStatus;
+  validGuesses: Set<Word>;
   answer: Letter[];
   invalidGuessCount: number;
+};
+
+export type SavedGameState = {
+  languageId: string;
+  languageVersion: number;
+  answer: string;
+  guesses: string[];
+  status: GameStatus;
 };
 
 export type GameOptions = {
