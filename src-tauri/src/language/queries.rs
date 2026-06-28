@@ -1,7 +1,11 @@
 use super::models::{CreateLanguage, Keyboard, Language, LanguageDirection, LanguageSummary};
-use anyhow::{Context, Result};
+use crate::language::models::Letter;
+use anyhow::{anyhow, Context, Result};
 use sqlx::{query, query_scalar, types::Json, SqliteConnection};
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    num::NonZeroU32,
+};
 
 pub async fn create_language(conn: &mut SqliteConnection, language: CreateLanguage) -> Result<()> {
     let language_id: i64 = query_scalar!(
@@ -48,9 +52,9 @@ pub async fn get_language(conn: &mut SqliteConnection, language_id: u64) -> Resu
             SELECT 
             id, 
             name, direction AS "direction: LanguageDirection", 
-            letters AS "letters: Json<Vec<String>>", 
+            letters AS "letters: Json<Vec<Letter>>", 
             keyboard AS "keyboard: Json<Keyboard>", 
-            normalizations AS "normalizations: Json<HashMap<String, String>>"
+            normalizations AS "normalizations: Json<HashMap<Letter, Letter>>"
             FROM language
             WHERE id = ?
         "#,
@@ -103,10 +107,16 @@ pub async fn get_language_summaries(conn: &mut SqliteConnection) -> Result<Vec<L
             )
         })?;
 
-        let word_lengths: Vec<u32> = word_lengths_rows
+        let word_lengths = word_lengths_rows
             .into_iter()
-            .map(|r| r.length as u32)
-            .collect();
+            .map(|r| r.length.try_into().ok().and_then(NonZeroU32::new))
+            .collect::<Option<_>>()
+            .ok_or_else(|| {
+                anyhow!(format!(
+                    "Invalid word lengths for language {}",
+                    language_row.id
+                ))
+            })?;
 
         let language_summary = LanguageSummary {
             id: language_row.id as u64,
