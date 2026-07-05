@@ -1,6 +1,9 @@
-use crate::language::{models::CreateLanguage, queries::create_language};
+use crate::{
+    AppState,
+    language::{models::ImportLanguage, service::LanguageService},
+};
 use anyhow::{Context, Result};
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use sqlx::{SqlitePool, sqlite::SqliteConnectOptions};
 use tauri::{AppHandle, Manager};
 
 pub async fn setup_database(app_handle: &AppHandle) -> Result<SqlitePool> {
@@ -29,33 +32,23 @@ pub async fn setup_database(app_handle: &AppHandle) -> Result<SqlitePool> {
     Ok(pool)
 }
 
-pub async fn seed_database(pool: &SqlitePool) -> Result<()> {
-    let count: i64 = sqlx::query_scalar!("SELECT COUNT(*) FROM language")
-        .fetch_one(pool)
-        .await
-        .context("Failed to count languages")?;
-
-    if count > 0 {
-        return Ok(());
-    }
-
+pub async fn seed_database(state: &AppState) -> Result<()> {
     let languages_json = [
         include_str!("../assets/languages/english.json"),
         include_str!("../assets/languages/arabic.json"),
     ];
 
-    let languages: Vec<CreateLanguage> = languages_json
+    let languages: Vec<ImportLanguage> = languages_json
         .iter()
         .map(|json| serde_json::from_str(json).context("Failed to parse language JSON"))
         .collect::<Result<_>>()?;
 
-    let mut tx = pool.begin().await?;
-
     for language in languages {
-        create_language(&mut tx, language).await?;
+        match state.language_service.import_language(&language).await {
+            Err(e) if e.to_string().contains("exists") => Ok(()),
+            r => r,
+        }?;
     }
-
-    tx.commit().await.context("Failed to commit transaction")?;
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 use super::{
-    models::{Language, LanguageSummary},
-    queries,
+    models::{Language, LanguageId, LanguageOption},
+    service::LanguageService,
 };
 use crate::AppState;
 use anyhow::Result;
@@ -9,24 +9,32 @@ use tauri::State;
 #[tauri::command]
 pub async fn get_language(
     state: State<'_, AppState>,
-    language_id: u64,
+    language_id: LanguageId,
 ) -> Result<Language, String> {
-    let pool = &state.pool;
-    let conn = &mut pool.acquire().await.map_err(|e| e.to_string())?;
-
-    queries::get_language(conn, language_id)
+    state
+        .language_service
+        .get_language(language_id)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| {
+            e.chain()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        })
 }
 
 #[tauri::command]
-pub async fn get_language_summaries(
+pub async fn get_language_options(
     state: State<'_, AppState>,
-) -> Result<Vec<LanguageSummary>, String> {
-    let pool = &state.pool;
-    let conn = &mut pool.acquire().await.map_err(|e| e.to_string())?;
-
-    queries::get_language_summaries(conn)
+) -> Result<Vec<LanguageOption>, String> {
+    state
+        .language_service
+        .get_language_options()
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| {
+            e.chain()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        })
 }

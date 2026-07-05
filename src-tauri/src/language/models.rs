@@ -1,9 +1,9 @@
-use anyhow::{anyhow, Error};
+use anyhow::{Error, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::{self, Display, Formatter};
 use std::num::NonZeroU32;
-use std::ops::Deref;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[serde(try_from = "String")]
@@ -13,6 +13,13 @@ pub struct Letter(String);
 impl Letter {
     pub fn new(value: String) -> Result<Self, Error> {
         Self::try_from(value)
+    }
+
+    /// # Safety
+    ///
+    /// `value` must be a valid letter.
+    pub unsafe fn new_unchecked(value: String) -> Self {
+        Self(value)
     }
 
     pub fn as_str(&self) -> &str {
@@ -52,14 +59,6 @@ impl AsRef<str> for Letter {
     }
 }
 
-impl Deref for Letter {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
 impl Display for Letter {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
@@ -76,12 +75,33 @@ impl Word {
         Self::try_from(value)
     }
 
+    /// # Safety
+    ///
+    /// `value` must be a valid word.
+    pub unsafe fn new_unchecked(value: String) -> Self {
+        Self(value)
+    }
+
     pub fn as_str(&self) -> &str {
         self.as_ref()
     }
 
     pub fn into_string(self) -> String {
         self.into()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.chars().count()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn letters(&self) -> impl Iterator<Item = Letter> + use<'_> {
+        self.0
+            .chars()
+            .map(|c| unsafe { Letter::new_unchecked(String::from(c)) })
     }
 }
 
@@ -113,18 +133,19 @@ impl AsRef<str> for Word {
     }
 }
 
-impl Deref for Word {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
 impl Display for Word {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
+}
+
+// TODO: think of a better name for this,
+// maybe change the Word struct name as well
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordEntry {
+    pub word: Word,
+    pub is_answer: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -165,10 +186,33 @@ pub enum LanguageDirection {
     RightToLeft,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
+#[serde(transparent)]
+#[sqlx(transparent)]
+pub struct LanguageId(Uuid);
+
+impl LanguageId {
+    pub fn new() -> LanguageId {
+        Self::default()
+    }
+}
+
+impl Default for LanguageId {
+    fn default() -> Self {
+        Self(Uuid::new_v4())
+    }
+}
+
+impl Display for LanguageId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
-    pub id: u64,
+    pub id: LanguageId,
     pub name: String,
     pub direction: LanguageDirection,
     pub letters: Vec<Letter>,
@@ -178,20 +222,17 @@ pub struct Language {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateLanguage {
-    pub name: String,
-    pub direction: LanguageDirection,
-    pub letters: Vec<Letter>,
-    pub keyboard: Keyboard,
-    pub normalizations: HashMap<Letter, Letter>,
+pub struct ImportLanguage {
+    #[serde(flatten)]
+    pub language: Language,
     pub guesses: Vec<Word>,
     pub answers: Vec<Word>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LanguageSummary {
-    pub id: u64,
+pub struct LanguageOption {
+    pub id: LanguageId,
     pub name: String,
     pub word_lengths: Vec<NonZeroU32>,
 }

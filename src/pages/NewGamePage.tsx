@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useHeader } from "../hooks/useHeader";
 import { useCallback, useEffect, useState } from "react";
-import { LanguageSummary } from "../types/language";
+import { LanguageOption } from "../types/language";
 import SettingsButton from "../components/SettingsButton";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -11,15 +11,15 @@ function NewGamePage() {
     rightContent: <SettingsButton />,
   });
 
-  const [languages, setLanguages] = useState<LanguageSummary[]>([]);
+  const [languages, setLanguages] = useState<LanguageOption[]>([]);
 
   useEffect(() => {
-    invoke("get_language_summaries").then((languages) => {
-      setLanguages(languages as LanguageSummary[]);
+    invoke("get_language_options").then((languages) => {
+      setLanguages(languages as LanguageOption[]);
     });
   }, []);
 
-  const [languageId, setLanguageId] = useState<number>();
+  const [languageId, setLanguageId] = useState<string>();
   const [wordLength, setWordLength] = useState<number>();
   const [maximumGuesses, setMaximumGuesses] = useState<number>(6);
 
@@ -54,7 +54,7 @@ function NewGamePage() {
               <select
                 value={languageId}
                 onChange={(event) => {
-                  setLanguageId(parseInt(event.target.value, 10));
+                  setLanguageId(event.target.value);
                 }}
               >
                 {languages.map((language) => (

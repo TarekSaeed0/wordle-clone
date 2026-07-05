@@ -1,5 +1,6 @@
 {
   "$schema": "../schemas/language.schema.json",
+  "id": "5c7a598c-3935-486c-a029-98b53db7a1fa",
   "name": "English",
   "direction": "ltr",
   "letters": [

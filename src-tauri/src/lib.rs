@@ -1,6 +1,10 @@
 use crate::{
     db::{seed_database, setup_database},
-    language::commands::{get_language, get_language_summaries},
+    language::{
+        commands::{get_language, get_language_options},
+        repository::{SqliteLanguageRepository},
+        service::RepositoryLanguageService,
+    },
 };
 use tauri::Manager;
 
@@ -9,7 +13,7 @@ pub mod game;
 pub mod language;
 
 pub struct AppState {
-    pub pool: sqlx::SqlitePool,
+    pub language_service: RepositoryLanguageService<SqliteLanguageRepository>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -23,9 +27,15 @@ pub fn run() {
                     .await
                     .expect("Failed to set up database");
 
-                seed_database(&pool).await.expect("Failed to seed database");
+                let language_repository = SqliteLanguageRepository::new(pool.clone());
 
-                let state = AppState { pool };
+                let language_service =
+                    RepositoryLanguageService::new(language_repository);
+
+                let state = AppState { language_service };
+
+                seed_database(&state).await
+                .expect("Failed to seed database");
 
                 handle.manage(state);
             });
@@ -34,10 +44,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            get_language,
-            get_language_summaries
-        ])
+        .invoke_handler(tauri::generate_handler![get_language, get_language_options])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

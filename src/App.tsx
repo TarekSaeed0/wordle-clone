@@ -1,6 +1,6 @@
 import "./App.css";
 import { ToastProvider } from "./providers/ToastProvider";
-import Game from "./pages/Game";
+import Game from "./pages/GamePage";
 import {
   BrowserRouter,
   Routes,

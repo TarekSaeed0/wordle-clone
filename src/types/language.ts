@@ -34,7 +34,7 @@ export type LanguageDirection =
   (typeof LanguageDirection)[keyof typeof LanguageDirection];
 
 export interface Language {
-  id: number;
+  id: string;
   name: string;
   direction: LanguageDirection;
   letters: Letter[];
@@ -42,8 +42,8 @@ export interface Language {
   normalizations: Record<Letter, Letter>;
 }
 
-export interface LanguageSummary {
-  id: number;
+export interface LanguageOption {
+  id: string;
   name: string;
   wordLengths: number[];
 }
